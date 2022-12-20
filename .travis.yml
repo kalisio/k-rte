@@ -1,37 +1,32 @@
 language: node_js
 node_js:
-  - '16'
+- '16'
 services:
-  - docker
-
+- docker
 notifications:
   email: false
   slack:
     rooms:
-      - secure: WuuqaxaQDy7IBzwfR/kJHLce5TOkGGlTxZ5nOG+S6KaG1hnIk/Xnaewp+mijmrsrSzcKzhhCdkF6Bq/Ib/uC76PpwYdgMlP5UCVnd41C3P8atuDdjeHwE4d9u7jAGkKPEmhVzescFef67B9YZJZR2Z4QOG+4GPDMOti/lyBpHYvyTELZHYQoCWYSXJaFkSvzHNL2QGPICsNVtYxagdejCr9dC6c2D37UUBy3Cew5YIqj1FPaV1WTWy5VE79UwcufjiYy3SKBvw7YN0skCmloDg+2esOFr5QHZgkzAHmiXGsSM4FxGfE1c2TpvSMNFbaZkgDUl6BY+TDtrORIUiUjpb6skGNJgP4deSSLNTZXGcnw3DdQRwNHUO229TRYscdAN3HGsNFD/6rwL3UQMP/UWfjv0YDGirfd19gVpuplo4QgQonCgURva3E7RQrSDtGhzMj7U1IqnHDDsQz3JQYsCsRuXiR+wwoceBozbPr7ue+LtqAlDa+CM8mkTKB6QL0mW8lDlQnIfQ/OLGmHFYu9knab/LOvMYwfHscPxjlSxtednj/KigOjJq7XiLugmLG6QG7nfSVfvAZTgiD+MzBOyxlzECVVlSTLV2YOV87Y1VdvtVcLqD7nkBNUMop+SYH25N/+/65tBX4cvMnMg8ljPXuAPVOQrtZNXFHnyp5Da1Y=
+      secure: BZKUl7V36H9tQUA7cqr/Lp3rLwoY+NHrD4AAqqQqGSD8aHaxCWrskNcKLW1HaL7NbzoMGsUYOR25NJC5by2piNMKl/jvNfhQEIJIY6p6aEuA24R3d67/jNAtBsbe7AXErS5PMOcFI33J6zFc0mdMgruz2RpFVWWgy2dJGiEbsbeixW2Aoz61qSEHr8ONX2OAVHHWyix/KH7SK0u7Y9qf/IM6Xz+dkGdSBWCSyigdv7+Ae62K+KiXghT4s7E6UdavAIh4m/LQeiLtjoQFbEKPANlezz3wi30culD/13tZ0/RpZ1KhYWQUFk5vR+9+POHQyB6WBao3gJuuiZDvxv9O7SPiJtZ7OkgjcQRPl2bl8gGKzd9R5fqs4hpywVv3ZYnOiSLYnIMFjYGgr+NXEUTKoM2RDIrwpq8x/CUpWKEmfBqTBw7W4aKHG+cQqblmnNGtKA71aLE5oobAU/pvuYn3QxQf6aBTb0o+0LGO5Dom5kwjzdtfjuGpP7nUKPS3CmNhyRsAVaYkl3cgwNL2xqqgVaEL23h5gMkFWCkKa/HAsmpHDr9G95ZFcBbpeBm3nrbDWmgLG803XLdQrBnJdrqc0+saEoux0IDNI0rsmgnIqQ9IzWC7QhxZlbMMpBUlfK/7z8Ztm8i+rs3U6aaQy0lxdMyDeflReT7DqLIFXMWdFOM=
     on_success: always
     on_failure: always
-
 env:
-  - JOB=units
-  - JOB=generation
-
+- JOB=units
+- JOB=generation
 before_script:
-  - docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWORD"
-  
+- docker login -u="$DOCKER_USER" -p="$DOCKER_PASSWORD"
 script:
-  - |
-   REPO_SLUG="$TRAVIS_REPO_SLUG"
-   IMAGE_NAME=${REPO_SLUG,,} # to lowercase
-   if [[ -z "$TRAVIS_TAG" ]]; then
-     IMAGE_TAG=latest
-     KRAWLER_TAG=latest
-   else
-     IMAGE_TAG=$(node -p -e "require('./package.json').version")
-     KRAWLER_TAG=$(node -p -e "require('./package.json').peerDependencies['@kalisio/krawler']")
-   fi
-   docker build --build-arg KRAWLER_TAG=$KRAWLER_TAG -f dockerfile."$JOB" -t $IMAGE_NAME:"$JOB"-$IMAGE_TAG .
-
+- |
+  REPO_SLUG="$TRAVIS_REPO_SLUG"
+  IMAGE_NAME=${REPO_SLUG,,} # to lowercase
+  if [[ -z "$TRAVIS_TAG" ]]; then
+    IMAGE_TAG=latest
+    KRAWLER_TAG=latest
+  else
+    IMAGE_TAG=$(node -p -e "require('./package.json').version")
+    KRAWLER_TAG=$(node -p -e "require('./package.json').peerDependencies['@kalisio/krawler']")
+  fi
+  docker build --build-arg KRAWLER_TAG=$KRAWLER_TAG -f dockerfile."$JOB" -t $IMAGE_NAME:"$JOB"-$IMAGE_TAG .
 deploy:
   provider: script
   script: docker push $IMAGE_NAME:"$JOB"-$IMAGE_TAG
