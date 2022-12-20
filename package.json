@@ -1,0 +1,43 @@
+{
+  "name": "k-rte",
+  "description": "A Krawler based service to download generation data from the French electrical network operated by RTE",
+  "version": "0.1.0",
+  "homepage": "https://github.com/kalisio/k-rte",
+  "type": "module",
+  "keywords": [
+    "krawler",
+    "kargo",
+    "feathers",
+    "rte"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kalisio/k-rte.git"
+  },
+  "author": {
+    "name": "Kalisio",
+    "email": "contact@kalisio.com",
+    "url": "https://github.com/kalisio"
+  },
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/kalisio/k-rte/issues"
+  },
+  "scripts": {
+    "test": "echo \"Warning: no test specified\"",
+    "release:major": "npm version --force major",
+    "release:minor": "npm version --force minor",
+    "release:patch": "npm version --force patch",
+    "postversion": "git push origin HEAD --tags"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.40"
+  },
+  "devDependencies": {},
+  "peerDependencies": {
+    "@kalisio/krawler": "2.1.0"
+  }
+}
