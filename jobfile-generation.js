@@ -22,9 +22,11 @@ export default {
         client_secret: process.env.CLIENT_SECRET,
         method: 'client_secret_basic'
       },
-      // It seems that we cannot request less than two day
-      start_date: moment.utc().subtract(2, 'days').format(),
-      end_date: moment.utc().format()
+      // It seems that we cannot request less than two days as
+      // the API only seems to take date and not time into account
+      // so request from yesterday to tomorrow
+      start_date: moment.utc().subtract(1, 'day').startOf('day').format(),
+      end_date: moment.utc().add(1, 'day').startOf('day').format()
     }
   }],
   hooks: {
@@ -35,11 +37,11 @@ export default {
           dataPath: 'data.mostRecentData',
           collection: 'rte-generation',
           pipeline: [
-            { $sort: { 'properties.eic_code': 1, time: 1 } },
+            { $sort: { 'properties.eicCode': 1, time: 1 } },
             {
               $group:
                 {
-                  _id: "$properties.eic_code",
+                  _id: "$properties.eicCode",
                   time: { $last: "$time" }
                 }
             }
@@ -62,24 +64,22 @@ export default {
             }
             let features = []
             _.forEach(generation, (data) => {
-              const eic_code = _.get(data, 'unit.eic_code')
-              const name = _.get(data, 'unit.name')  
+              const eicCode = _.get(data, 'unit.eic_code')
               // Match unit using name for now
-              const unit = _.find(units, unit => _.kebabCase(name).includes(_.kebabCase(unit.name)))
+              const unit = _.find(units, unit => _.get(unit, 'properties.eicCode') === eicCode)
               if (unit) {
                 const feature = {
                   type: 'Feature',
-                  properties: { eic_code, name },
+                  properties: _.pick(unit.properties, ['eicCode', 'name']),
                   geometry: unit.geometry
                 }
                 // Now keep track of newer values
-                const latestData = _.find(mostRecentData, latestData => latestData._id === eic_code)
+                const latestData = _.find(mostRecentData, latestData => latestData._id === eicCode)
                 const values = _.get(data, 'values', [])
                 values.forEach(record => {
                   const time = moment.utc(record.end_date)
                   // Check if newer
                   if (latestData && time.isSameOrBefore(moment.utc(latestData.time))) return
-                  console.log(eic_code, record)
                   // If so push it
                   features.push(_.merge({
                     time: time.toDate(),
@@ -125,9 +125,9 @@ export default {
           clientPath: 'taskTemplate.client',
           collection: 'rte-generation',
           indices: [
-            [{ time: 1, 'properties.eic_code': 1 }, { unique: true }],
+            [{ time: 1, 'properties.eicCode': 1 }, { unique: true }],
             { 'properties.power': 1 },
-            { 'properties.eic_code': 1, 'properties.power': 1, time: -1 },
+            { 'properties.eicCode': 1, 'properties.power': 1, time: -1 },
             [{ time: 1 }, { expireAfterSeconds: ttl }], // days in s
             { geometry: '2dsphere' }                                                                                                              
           ],

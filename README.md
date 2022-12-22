@@ -17,7 +17,7 @@ The project consists in 2 jobs:
 * the `units` job scrapes the available production units according a specific cron expression. By default, every day at midnight.
 * the `generation` job scrapes the generation data according a specific cron expression. By default every hour.
 
-As the RTE API does not provide the location of the production units, the default `units` job simply read data from an input file providing plant location (taken from https://github.com/ewoken/nuclear-monitor), assuming all production units of the plant have the same location. You can update the file whenever production units are updated. If you have a better source of production units locations you should customise the job to use it.
+As the RTE API does not provide the location of the production units, the default `units` job simply read data from input files providing plant location and associated production units (taken from https://github.com/ewoken/nuclear-monitor), assuming all production units of the plant have the same location. You can update the file whenever production units are updated. If you have a better source of production units locations you should customise the job to use it.
 
 ## Configuration
 
