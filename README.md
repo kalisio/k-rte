@@ -3,7 +3,7 @@
 [![Latest Release](https://img.shields.io/github/v/tag/kalisio/k-rte?sort=semver&label=latest)](https://github.com/kalisio/k-rte/releases)
 [![Build Status](https://app.travis-ci.com/kalisio/k-rte.svg?branch=master)](https://app.travis-ci.com/kalisio/k-rte)
 
-A [Krawler](https://kalisio.github.io/krawler/) based service to download generation data from the French gelectrical network operated by RTE.
+A [Krawler](https://kalisio.github.io/krawler/) based service to download generation data from the French electrical network operated by RTE.
 
 ## Description
 
@@ -37,6 +37,7 @@ As the RTE API does not provide the location of the production units, the defaul
 | `CLIENT_ID` | Client ID of your application in the RTE API, required to generate the authentication token. |
 | `CLIENT_SECRET` | Client secret of your application in the RTE API, required to generate the authentication token. |
 | `PRODUCTION_TYPE_FILTER` | Comma-separated list of production type to be read (please refer to RTE API documentation for details). |
+| `HISTORY` | The duration of the generation data history the job has to download. It must be expressed in seconds and the default value is `86 400 000` (1 day) | 
 | `DEBUG` | Enables debug output. Set it to `krawler*` to enable full output. By default it is undefined. |
 
 ## Deployment
@@ -52,6 +53,7 @@ Please refer to [contribution section](./CONTRIBUTING.md) for more details.
 This project is sponsored by 
 
 ![Kalisio](https://s3.eu-central-1.amazonaws.com/kalisioscope/kalisio/kalisio-logo-black-256x84.png)
+![IRSN](https://s3.eu-central-1.amazonaws.com/kalisioscope/assets/logos/irsn.png)
 
 ## License
 

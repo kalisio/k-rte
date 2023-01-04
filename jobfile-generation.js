@@ -3,7 +3,10 @@ import moment from 'moment'
 
 const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/rte'
 const ttl = +process.env.TTL || (7 * 24 * 60 * 60)  // duration in seconds
+const history =  +process.env.HISTORY || (1 * 24 * 60 * 60) // duration in seconds
 const typeFilter = process.env.PRODUCTION_TYPE_FILTER ? process.env.PRODUCTION_TYPE_FILTER.split(',') : ''
+const startDate = moment.utc().subtract(history, 'seconds').startOf('day')
+const endDate = moment.utc().add(1, 'day').startOf('day')
 
 export default {
   id: 'rte-generation',
@@ -25,8 +28,8 @@ export default {
       // It seems that we cannot request less than two days as
       // the API only seems to take date and not time into account
       // so request from yesterday to tomorrow
-      start_date: moment.utc().subtract(1, 'day').startOf('day').format(),
-      end_date: moment.utc().add(1, 'day').startOf('day').format()
+      start_date: startDate.format(),
+      end_date: endDate.format()
     }
   }],
   hooks: {
@@ -37,13 +40,16 @@ export default {
           dataPath: 'data.mostRecentData',
           collection: 'rte-generation',
           pipeline: [
-            { $sort: { 'properties.eicCode': 1, time: 1 } },
+            { $match: {
+              'properties.power': { $exists: true },
+              time: { $gte: startDate.format() }
+            } },
+            { $sort: { time: -1 } },
             {
-              $group:
-                {
-                  _id: "$properties.eicCode",
-                  time: { $last: "$time" }
-                }
+              $group:{
+                _id: "$properties.eicCode",
+                time: { $first: "$time" }
+              }
             }
           ],
           allowDiskUse: true
@@ -57,6 +63,7 @@ export default {
             console.log('Seeking generation data for ' + units.length + ' units')
             delete item.units
             const mostRecentData = _.get(item, 'mostRecentData', [])
+            console.log('Found previous generation data for ' + mostRecentData.length + ' units')
             let generation = _.get(item, 'data.actual_generations_per_unit', [])
             // Filter required production types
             if (typeFilter) {
@@ -125,8 +132,9 @@ export default {
           clientPath: 'taskTemplate.client',
           collection: 'rte-generation',
           indices: [
-            [{ time: 1, 'properties.eicCode': 1 }, { unique: true }],
+            { 'properties.eicCode': 1 },
             { 'properties.power': 1 },
+            { 'properties.eicCode': 1, time: -1 },
             { 'properties.eicCode': 1, 'properties.power': 1, time: -1 },
             [{ time: 1 }, { expireAfterSeconds: ttl }], // days in s
             { geometry: '2dsphere' }                                                                                                              
