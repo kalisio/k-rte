@@ -22,7 +22,7 @@ RUN yarn link
 RUN chmod u+x /usr/local/bin/krawler
 
 # Copy the job and install the dependencies
-COPY jobfile-units.js package.json yarn.lock /opt/job/
+COPY plants.csv reactors.csv jobfile-units.js package.json yarn.lock /opt/job/
 WORKDIR /opt/job
 RUN yarn && yarn link @kalisio/krawler
 
