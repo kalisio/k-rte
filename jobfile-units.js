@@ -25,7 +25,7 @@ export default {
     tasks: {
       after: {
         readCSV: {
-          headers: true
+          header: true
         },
         apply: {
           function: (item) => {
@@ -41,7 +41,7 @@ export default {
               // Convert some properties
               _.forOwn(unit, (value, key) => {
                 if (key.endsWith('_MW')) unit[key] = _.toNumber(unit[key])
-                if (key.endsWith('Date')) unit[key] = moment.utc(unit[key]).toDate()
+                if (key.endsWith('Date')) unit[key] = moment.utc(unit[key], 'DD/MM/YYYY').toDate()
               })
             })
             console.log('Found ' + units.length + ' production units')
@@ -83,7 +83,7 @@ export default {
         readCSV: {
           key: 'plants.csv',
           store: 'fs',
-          headers: true,
+          header: true,
           dataPath: 'data.taskTemplate.plants'
         }
       },
