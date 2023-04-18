@@ -36,7 +36,7 @@ As the RTE API does not provide the location of the production units, the defaul
 | `TTL` | The observations data time to live. It must be expressed in seconds and the default value is `604 800` (7 days) | 
 | `CLIENT_ID` | Client ID of your application in the RTE API, required to generate the authentication token. |
 | `CLIENT_SECRET` | Client secret of your application in the RTE API, required to generate the authentication token. |
-| `PRODUCTION_TYPE_FILTER` | Comma-separated list of production type to be read (please refer to RTE API documentation for details). |
+| `PRODUCTION_TYPE_FILTER` | Comma-separated list of production type to be read (please refer to RTE API documentation for details, defaults to `NUCLEAR`). |
 | `HISTORY` | The duration of the generation data history the job has to download. It must be expressed in seconds and the default value is `86 400 000` (1 day) | 
 | `DEBUG` | Enables debug output. Set it to `krawler*` to enable full output. By default it is undefined. |
 
