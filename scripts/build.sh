@@ -14,7 +14,7 @@ ROOT_DIR=$(dirname "$THIS_DIR")
 PUBLISH=false
 JOB_NAME="units"
 CI_STEP_NAME="Build"
-while getopts "pr:" option; do
+while getopts "pr:j:" option; do
     case $option in
         p) # publish
             PUBLISH=true
