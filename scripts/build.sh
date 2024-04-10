@@ -75,7 +75,7 @@ DOCKER_BUILDKIT=1 docker build -f dockerfile \
     "$WORKSPACE_DIR/$JOB"
 
 if [ "$PUBLISH" = true ]; then
-    docker push "$IMAGE_NAME:$IMAGE_TAG"
+    docker push "$IMAGE_NAME:$JOB_NAME-$IMAGE_TAG"
 fi
 
 docker logout
