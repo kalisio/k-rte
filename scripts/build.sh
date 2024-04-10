@@ -71,7 +71,7 @@ docker login --username "$KALISIO_DOCKERHUB_USERNAME" --password-stdin < "$KALIS
 DOCKER_BUILDKIT=1 docker build -f dockerfile \
     --build-arg KRAWLER_TAG=$KRAWLER_TAG \
     -f dockerfile."$JOB_NAME" \
-    -t "$IMAGE_NAME:$IMAGE_TAG" \
+    -t "$IMAGE_NAME:$JOB_NAME-$IMAGE_TAG" \
     "$WORKSPACE_DIR/$JOB"
 
 if [ "$PUBLISH" = true ]; then
