@@ -2,7 +2,7 @@ name: Main CI
 on: [ push ]
 
 jobs:
-  build-units:
+  build_units:
     name: Build Units
     if: ${{ !contains(github.event.head_commit.message, 'skip app') }}
     runs-on: ubuntu-22.04
@@ -21,7 +21,7 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         run: bash ./scripts/build.sh -p -r ${{ github.job }} -j "units"
-  build-generation:
+  build_generation:
     name: Build Generation
     if: ${{ !contains(github.event.head_commit.message, 'skip app') }}
     runs-on: ubuntu-22.04

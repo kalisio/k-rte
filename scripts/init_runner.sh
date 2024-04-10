@@ -11,7 +11,11 @@ THIS_DIR=$(dirname "$THIS_FILE")
 
 ### Github Actions
 
-init_github_build() {
+init_github_build_units() {
+    install_reqs age sops nvm node16
+}
+
+init_github_build_generation() {
     install_reqs age sops nvm node16
 }
 
