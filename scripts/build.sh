@@ -12,6 +12,7 @@ ROOT_DIR=$(dirname "$THIS_DIR")
 ##
 
 PUBLISH=false
+JOB_NAME="units"
 CI_STEP_NAME="Build"
 while getopts "pr:" option; do
     case $option in
@@ -21,6 +22,9 @@ while getopts "pr:" option; do
         r) # report outcome to slack
             CI_STEP_NAME=$OPTARG
             trap 'slack_ci_report "$ROOT_DIR" "$CI_STEP_NAME" "$?" "$SLACK_WEBHOOK_JOBS"' EXIT
+            ;;
+        j) # setup job name
+            JOB_NAME=$OPTARG
             ;;
         *)
             ;;
@@ -66,6 +70,7 @@ docker login --username "$KALISIO_DOCKERHUB_USERNAME" --password-stdin < "$KALIS
 # DOCKER_BUILDKIT is here to be able to use Dockerfile specific dockerginore (job.Dockerfile.dockerignore)
 DOCKER_BUILDKIT=1 docker build -f dockerfile \
     --build-arg KRAWLER_TAG=$KRAWLER_TAG \
+    -f dockerfile."$JOB_NAME" \
     -t "$IMAGE_NAME:$IMAGE_TAG" \
     "$WORKSPACE_DIR/$JOB"
 

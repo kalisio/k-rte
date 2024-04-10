@@ -2,8 +2,8 @@ name: Main CI
 on: [ push ]
 
 jobs:
-  build:
-    name: Build
+  build-units:
+    name: Build Units
     if: ${{ !contains(github.event.head_commit.message, 'skip app') }}
     runs-on: ubuntu-22.04
     steps:
@@ -20,4 +20,23 @@ jobs:
       - name: Build app
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-        run: bash ./scripts/build.sh -p -r ${{ github.job }}
+        run: bash ./scripts/build.sh -p -r ${{ github.job }} -j "units"
+  build-generation:
+    name: Build Generation
+    if: ${{ !contains(github.event.head_commit.message, 'skip app') }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Init runner
+        run: bash ./scripts/init_runner.sh ${{ github.job }}
+      - name: Setup workspace
+        env:
+          GITHUB_DEVELOPMENT_PAT: ${{ secrets.GH_DEVELOPMENT_PAT }}
+        run: bash ./scripts/setup_workspace.sh
+      - name: Build app
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: bash ./scripts/build.sh -p -r ${{ github.job }} -j "generation"
