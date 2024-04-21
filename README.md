@@ -1,7 +1,7 @@
 # k-rte
 
 [![Latest Release](https://img.shields.io/github/v/tag/kalisio/k-rte?sort=semver&label=latest)](https://github.com/kalisio/k-rte/releases)
-[![Build](https://github.com/kalisio/k-rte/actions/workflows/main.yaml/badge.svg)](https://github.com/kalisio/k-rte/actions/workflows/main.yaml)
+[![ci](https://github.com/kalisio/k-rte/actions/workflows/main.yaml/badge.svg)](https://github.com/kalisio/k-rte/actions/workflows/main.yaml)
 
 A [Krawler](https://kalisio.github.io/krawler/) based service to download generation data from the French electrical network operated by RTE.
 
