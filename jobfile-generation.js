@@ -58,14 +58,27 @@ export default {
       },
       after: {
         readJson: {},
+        log: (logger, item) => {
+          const unitsCount = item.__unitsCount ?? (item.units ? item.units.length : 0)
+          const previousCount = item.__previousCount ?? _.get(item, 'mostRecentData', []).length
+          const newCount = Array.isArray(item.data) ? item.data.length : 0
+  
+          logger.info(`Seeking generation data for ${unitsCount} units`)
+          logger.info(`Found previous generation data for ${previousCount} units`)
+          if (newCount > 0) {
+            logger.info(`Found ${newCount} new generation data`)
+          } else {
+            logger.info('No new generation data found')
+          }
+        },
         apply: {
           function: (item) => {
             const units = _.get(item, 'units', [])
-            item.__logs = item.__logs || []
-            item.__logs.push({ level: 'verbose', msg: `Seeking generation data for ${units.length} units` })
+            item.__unitsCount = units.length
             delete item.units
             const mostRecentData = _.get(item, 'mostRecentData', [])
-            item.__logs.push({ level: 'verbose', msg: `Found previous generation data for ${mostRecentData.length} units` })
+            item.__previousCount = mostRecentData.length
+            // console.log('Found previous generation data for ' + mostRecentData.length + ' units')
             let generation = _.get(item, 'data.actual_generations_per_unit', [])
             // Filter required production types
             if (TYPE_FILTER) {
@@ -99,19 +112,7 @@ export default {
                 })
               }
             })
-            if (features.length > 0) item.__logs.push({ level: 'info', msg: `Found ${features.length} new generation data` })
-            else item.__logs.push({ level: 'info', msg: 'No new generation data found' })
             item.data = features
-          },
-          log: (logger, item) => {
-            if (item.__logs && item.__logs.length) {
-              item.__logs.forEach(l => {
-                if (l.level === 'info') logger.info(l.msg)
-                if (l.level === 'warn') logger.warn(l.msg)
-                if (l.level === 'error') logger.error(l.msg)
-                if (l.level === 'verbose') logger.verbose(l.msg)
-              })
-            }
           }
         },
         writeMongoCollection: {
@@ -134,22 +135,17 @@ export default {
           // Required so that client is forwarded from job to tasks
           clientPath: 'taskTemplate.client'
         },
-        createLogger: {
-          loggerPath: 'taskTemplate.logger',
-          Console: {
-            format: winston.format.printf(log =>
-              winston.format.colorize().colorize(
-                log.level,
-                `${log.level}: ${log.message}`
-              )
-            ),
-            level: 'verbose'
-          }
-        },
         readMongoCollection: {
           clientPath: 'taskTemplate.client',
           collection: 'rte-units',
           dataPath: 'data.taskTemplate.units'
+        },
+        createLogger: {
+          loggerPath: 'taskTemplate.logger',
+          Console: {
+            format: winston.format.printf(log => winston.format.colorize().colorize(log.level, `${log.level}: ${log.message}`)),
+            level: 'verbose'
+          }
         },
         createGenerationCollection: {
           hook: 'createMongoCollection',
