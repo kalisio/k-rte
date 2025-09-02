@@ -2,9 +2,10 @@ import _ from 'lodash'
 import moment from 'moment'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import winston from 'winston'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/rte'
+const DB_URL = process.env.DB_URL || 'mongodb://127.0.0.1:27017/rte'
 
 // FIXME: now we only have information about nuclear plant/reactors
 export default {
@@ -44,9 +45,10 @@ export default {
                 if (key.endsWith('Date')) unit[key] = moment.utc(unit[key], 'DD/MM/YYYY').toDate()
               })
             })
-            console.log('Found ' + units.length + ' production units')
+            return item
           }
         },
+        log: (logger, item) => logger.info(`${item.data.length} observations found`),
         convertToGeoJson: {
           latitude: 'lat',
           longitude: 'long'
@@ -68,9 +70,21 @@ export default {
           id: 'fs', options: { path: __dirname }
         }],
         connectMongo: {
-          url: dbUrl,
+          url: DB_URL,
           // Required so that client is forwarded from job to tasks
           clientPath: 'taskTemplate.client'
+        },
+        createLogger: {
+          loggerPath: 'taskTemplate.logger',
+          Console: {
+            format: winston.format.printf(log =>
+              winston.format.colorize().colorize(
+                log.level,
+                `${log.level}: ${log.message}`
+              )
+            ),
+            level: 'verbose'
+          }
         },
         createMongoCollection: {
           clientPath: 'taskTemplate.client',
@@ -91,11 +105,17 @@ export default {
         disconnectMongo: {
           clientPath: 'taskTemplate.client'
         },
+        removeLogger: {
+          loggerPath: 'taskTemplate.logger'
+        },
         removeStores: [ 'memory', 'fs' ]
       },
       error: {
         disconnectMongo: {
           clientPath: 'taskTemplate.client'
+        },
+        removeLogger: {
+          loggerPath: 'taskTemplate.logger'
         },
         removeStores: [ 'memory', 'fs' ]
       }

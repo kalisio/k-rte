@@ -1,12 +1,13 @@
 import _ from 'lodash'
 import moment from 'moment'
+import winston from 'winston'
 
-const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/rte'
-const ttl = +process.env.TTL || (7 * 24 * 60 * 60)  // duration in seconds
-const history =  +process.env.HISTORY || (1 * 24 * 60 * 60) // duration in seconds
-const typeFilter = process.env.PRODUCTION_TYPE_FILTER ? process.env.PRODUCTION_TYPE_FILTER.split(',') : ['NUCLEAR']
-const startDate = moment.utc().subtract(history, 'seconds').startOf('day')
-const endDate = moment.utc().add(1, 'day').startOf('day')
+const DB_URL = process.env.DB_URL || 'mongodb://127.0.0.1:27017/rte'
+const TTL = +process.env.TTL || (7 * 24 * 60 * 60)  // duration in seconds
+const HISTORY =  +process.env.HISTORY || (1 * 24 * 60 * 60) // duration in seconds
+const TYPE_FILTER = process.env.PRODUCTION_TYPE_FILTER ? process.env.PRODUCTION_TYPE_FILTER.split(',') : ['NUCLEAR']
+const START_DATE = moment.utc().subtract(HISTORY, 'seconds').startOf('day')
+const END_DATE = moment.utc().add(1, 'day').startOf('day')
 
 export default {
   id: 'rte-generation',
@@ -28,8 +29,8 @@ export default {
       // It seems that we cannot request less than two days as
       // the API only seems to take date and not time into account
       // so request from yesterday to tomorrow
-      start_date: startDate.format(),
-      end_date: endDate.format()
+      start_date: START_DATE.format(),
+      end_date: END_DATE.format()
     }
   }],
   hooks: {
@@ -42,7 +43,7 @@ export default {
           pipeline: [
             { $match: {
               'properties.power': { $exists: true },
-              time: { $gte: startDate.format() }
+              time: { $gte: START_DATE.format() }
             } },
             { $sort: { time: -1 } },
             {
@@ -60,14 +61,15 @@ export default {
         apply: {
           function: (item) => {
             const units = _.get(item, 'units', [])
-            console.log('Seeking generation data for ' + units.length + ' units')
+            item.__logs = item.__logs || []
+            item.__logs.push({ level: 'verbose', msg: `Seeking generation data for ${units.length} units` })
             delete item.units
             const mostRecentData = _.get(item, 'mostRecentData', [])
-            console.log('Found previous generation data for ' + mostRecentData.length + ' units')
+            item.__logs.push({ level: 'verbose', msg: `Found previous generation data for ${mostRecentData.length} units` })
             let generation = _.get(item, 'data.actual_generations_per_unit', [])
             // Filter required production types
-            if (typeFilter) {
-              generation = generation.filter(data => typeFilter.includes(_.get(data, 'unit.production_type')))
+            if (TYPE_FILTER) {
+              generation = generation.filter(data => TYPE_FILTER.includes(_.get(data, 'unit.production_type')))
             }
             let features = []
             _.forEach(generation, (data) => {
@@ -97,9 +99,19 @@ export default {
                 })
               }
             })
-            if (features.length > 0) console.log('Found ' + features.length + ' new generation data')
-            else console.log('No new generation data found')
+            if (features.length > 0) item.__logs.push({ level: 'info', msg: `Found ${features.length} new generation data` })
+            else item.__logs.push({ level: 'info', msg: 'No new generation data found' })
             item.data = features
+          },
+          log: (logger, item) => {
+            if (item.__logs && item.__logs.length) {
+              item.__logs.forEach(l => {
+                if (l.level === 'info') logger.info(l.msg)
+                if (l.level === 'warn') logger.warn(l.msg)
+                if (l.level === 'error') logger.error(l.msg)
+                if (l.level === 'verbose') logger.verbose(l.msg)
+              })
+            }
           }
         },
         writeMongoCollection: {
@@ -118,9 +130,21 @@ export default {
       before: {
         createStores: { id: 'memory' },
         connectMongo: {
-          url: dbUrl,
+          url: DB_URL,
           // Required so that client is forwarded from job to tasks
           clientPath: 'taskTemplate.client'
+        },
+        createLogger: {
+          loggerPath: 'taskTemplate.logger',
+          Console: {
+            format: winston.format.printf(log =>
+              winston.format.colorize().colorize(
+                log.level,
+                `${log.level}: ${log.message}`
+              )
+            ),
+            level: 'verbose'
+          }
         },
         readMongoCollection: {
           clientPath: 'taskTemplate.client',
@@ -136,7 +160,7 @@ export default {
             { 'properties.power': 1 },
             { 'properties.eicCode': 1, time: -1 },
             { 'properties.eicCode': 1, 'properties.power': 1, time: -1 },
-            [{ time: 1 }, { expireAfterSeconds: ttl }], // days in s
+            [{ time: 1 }, { expireAfterSeconds: TTL }], // days in s
             { geometry: '2dsphere' }                                                                                                              
           ],
         }
@@ -145,11 +169,17 @@ export default {
         disconnectMongo: {
           clientPath: 'taskTemplate.client'
         },
+        removeLogger: {
+          loggerPath: 'taskTemplate.logger'
+        },
         removeStores: ['memory']
       },
       error: {
         disconnectMongo: {
           clientPath: 'taskTemplate.client'
+        },
+        removeLogger: {
+          loggerPath: 'taskTemplate.logger'
         },
         removeStores: ['memory']
       }
