@@ -58,26 +58,12 @@ export default {
       },
       after: {
         readJson: {},
-        log: (logger, item) => {
-          const unitsCount = item.__unitsCount ?? (item.units ? item.units.length : 0)
-          const previousCount = item.__previousCount ?? _.get(item, 'mostRecentData', []).length
-          const newCount = Array.isArray(item.data) ? item.data.length : 0
-  
-          logger.info(`Seeking generation data for ${unitsCount} units`)
-          logger.info(`Found previous generation data for ${previousCount} units`)
-          if (newCount > 0) {
-            logger.info(`Found ${newCount} new generation data`)
-          } else {
-            logger.info('No new generation data found')
-          }
-        },
         apply: {
           function: (item) => {
             const units = _.get(item, 'units', [])
-            item.__unitsCount = units.length
+            // console.log('Seeking generation data for ' + units.length + ' units')
             delete item.units
             const mostRecentData = _.get(item, 'mostRecentData', [])
-            item.__previousCount = mostRecentData.length
             // console.log('Found previous generation data for ' + mostRecentData.length + ' units')
             let generation = _.get(item, 'data.actual_generations_per_unit', [])
             // Filter required production types
@@ -113,6 +99,18 @@ export default {
               }
             })
             item.data = features
+            item.units = units
+            item.mostRecentData = mostRecentData
+            item.count = features.length
+          }
+        },
+        log: (logger, item) => {
+          logger.info(`Seeking generation data for ${item.units.length} units`)
+          logger.info(`Found previous generation data for ${item.mostRecentData.length} units`)
+          if (item.count > 0) {
+            logger.info(`Found ${item.count} new generation data`)
+          } else {
+            logger.info('No new generation data found')
           }
         },
         writeMongoCollection: {

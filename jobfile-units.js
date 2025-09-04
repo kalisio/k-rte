@@ -48,7 +48,7 @@ export default {
             return item
           }
         },
-        log: (logger, item) => logger.info(`${item.data.length} observations found`),
+        log: (logger, item) => logger.info(`${item.data.length} units found`),
         convertToGeoJson: {
           latitude: 'lat',
           longitude: 'long'
