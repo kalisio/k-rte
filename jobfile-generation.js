@@ -106,12 +106,8 @@ export default {
         },
         log: (logger, item) => {
           logger.info(`Seeking generation data for ${item.units.length} units`)
-          logger.info(`Found previous generation data for ${item.mostRecentData.length} units`)
-          if (item.count > 0) {
-            logger.info(`Found ${item.count} new generation data`)
-          } else {
-            logger.info('No new generation data found')
-          }
+          logger.debug(`Found previous generation data for ${item.mostRecentData.length} units`)
+          logger.info(`Found ${item.count} new generation data`)
         },
         writeMongoCollection: {
           collection: 'rte-generation',/*
@@ -127,6 +123,11 @@ export default {
     },
     jobs: {
       before: {
+        printEnv: {
+          TYPE_FILTER,
+          HISTORY,
+          TTL
+        },
         createStores: { id: 'memory' },
         connectMongo: {
           url: DB_URL,
