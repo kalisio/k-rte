@@ -2,8 +2,8 @@
 
 [![Latest Release](https://img.shields.io/github/v/tag/kalisio/k-rte?sort=semver&label=latest)](https://github.com/kalisio/k-rte/releases)
 [![CI](https://github.com/kalisio/k-rte/actions/workflows/main.yaml/badge.svg)](https://github.com/kalisio/k-rte/actions/workflows/main.yaml)
-[![Code Climate](https://codeclimate.com/github/kalisio/k-rte/badges/gpa.svg)](https://codeclimate.com/github/kalisio/k-rte)
-[![Test Coverage](https://codeclimate.com/github/kalisio/k-rte/badges/coverage.svg)](https://codeclimate.com/github/kalisio/k-rte/coverage)
+[![Maintainability Issues](https://sonar.portal.kalisio.com/api/project_badges/measure?project=kalisio-k-rte&metric=software_quality_maintainability_issues&token=sqb_9b7aa4805ed6b7c149d40e57e49fdaf57f4e65ab)](https://sonar.portal.kalisio.com/dashboard?id=kalisio-k-rte)
+[![Coverage](https://sonar.portal.kalisio.com/api/project_badges/measure?project=kalisio-k-rte&metric=coverage&token=sqb_9b7aa4805ed6b7c149d40e57e49fdaf57f4e65ab)](https://sonar.portal.kalisio.com/dashboard?id=kalisio-k-rte)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A [Krawler](https://kalisio.github.io/krawler/) based service to download generation data from the French electrical network operated by RTE.
