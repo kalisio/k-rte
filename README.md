@@ -37,11 +37,11 @@ As the RTE API does not provide the location of the production units, the defaul
 | Variable | Description |
 |--- | --- |
 | `DB_URL` | The database URL. The default value is `mongodb://127.0.0.1:27017/rte` |
-| `TTL` | The observations data time to live. It must be expressed in seconds and the default value is `604 800` (7 days) | 
+| `TTL` | The observations data time to live. It must be expressed in seconds and the default value is `604 800` (7 days) |
 | `CLIENT_ID` | Client ID of your application in the RTE API, required to generate the authentication token. |
 | `CLIENT_SECRET` | Client secret of your application in the RTE API, required to generate the authentication token. |
 | `PRODUCTION_TYPE_FILTER` | Comma-separated list of production type to be read (please refer to RTE API documentation for details, defaults to `NUCLEAR`). |
-| `HISTORY` | The duration of the generation data history the job has to download. It must be expressed in seconds and the default value is `86 400 000` (1 day) | 
+| `HISTORY` | The duration of the generation data history the job has to download. It must be expressed in seconds and the default value is `86 400 000` (1 day) |
 | `DEBUG` | Enables debug output. Set it to `krawler*` to enable full output. By default it is undefined. |
 
 ## Deployment
@@ -52,13 +52,10 @@ We personally use [Kargo](https://kalisio.github.io/kargo/) to deploy the servic
 
 Please refer to [contribution section](./CONTRIBUTING.md) for more details.
 
-## Authors
-
-This project is sponsored by 
-
-![Kalisio](https://s3.eu-central-1.amazonaws.com/kalisioscope/kalisio/kalisio-logo-black-256x84.png)
-![IRSN](https://s3.eu-central-1.amazonaws.com/kalisioscope/assets/logos/irsn.png)
-
 ## License
 
-This project is licensed under the MIT License - see the [license file](./LICENSE) for details
+Licensed under the [MIT license](LICENSE).
+
+Copyright (c) 2017-20xx [Kalisio](https://kalisio.com)
+
+[![Kalisio](https://kalisio.github.io/kalisioscope/kalisio/kalisio-logo-black-256x84.png)](https://kalisio.com)
